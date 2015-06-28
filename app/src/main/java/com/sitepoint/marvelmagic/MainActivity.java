@@ -3,23 +3,31 @@ package com.sitepoint.marvelmagic;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
 import java.security.MessageDigest;
 
 public class MainActivity extends Activity {
-
-    String api_url = "http://gateway.marvel.com/v1/comics?ts=1";
 
     Long tsLong = System.currentTimeMillis() / 1000;
     String ts = tsLong.toString();
     
     String public_key = "dfa06d77bc9c4f9f0ed01337848247e3";
     String private_key = "28368556487f21005668a0ac6cebbf7886945528";
-    String Hash = md5(public_key + private_key);
+    String hash = md5(ts + public_key + private_key);
+    //http://gateway.marvel.com/v1/comics?ts=1&apikey=1234&hash=ffd275c5130566a2916217b101f26150
+    //TODO: Better way?
+    String api_url = "http://gateway.marvel.com/v1/public/characters?ts=" + ts + "&apikey=" + public_key + "&hash=" + hash;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,6 +36,21 @@ public class MainActivity extends Activity {
 
         GridView gridview = (GridView) findViewById(R.id.gridview);
         Toast.makeText(getApplicationContext(), R.string.welcome_message, Toast.LENGTH_LONG).show();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, api_url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("Response: ", response.toString());
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("Response: ", error.toString());
+            }
+        });
+
+        VolleySingleton.getInstance(getApplicationContext()).addToRequestQueue(stringRequest);
     }
 
     @Override
