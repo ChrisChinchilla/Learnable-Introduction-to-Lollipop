@@ -8,7 +8,18 @@ import android.view.MenuItem;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import java.security.MessageDigest;
+
 public class MainActivity extends Activity {
+
+    String api_url = "http://gateway.marvel.com/v1/comics?ts=1";
+
+    Long tsLong = System.currentTimeMillis() / 1000;
+    String ts = tsLong.toString();
+    
+    String public_key = "dfa06d77bc9c4f9f0ed01337848247e3";
+    String private_key = "28368556487f21005668a0ac6cebbf7886945528";
+    String Hash = md5(public_key + private_key);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,5 +52,20 @@ public class MainActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public static final String md5(final String toEncrypt) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance("md5");
+            digest.update(toEncrypt.getBytes());
+            final byte[] bytes = digest.digest();
+            final StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(String.format("%02X", bytes[i]));
+            }
+            return sb.toString().toLowerCase();
+        } catch (Exception exc) {
+            return ""; // Impossibru!
+        }
     }
 }
